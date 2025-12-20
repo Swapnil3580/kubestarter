@@ -1,0 +1,74 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+echo "🚀 Installing Kind and kubectl on Ubuntu..."
+
+# ----------------------------
+# Prerequisites
+# ----------------------------
+sudo apt update -y
+sudo apt install -y curl
+
+# ----------------------------
+# Install Kind
+# ----------------------------
+if ! command -v kind &>/dev/null; then
+  echo "📦 Installing Kind..."
+
+  ARCH=$(uname -m)
+  if [ "$ARCH" = "x86_64" ]; then
+    KIND_BINARY="kind-linux-amd64"
+  elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+    KIND_BINARY="kind-linux-arm64"
+  else
+    echo "❌ Unsupported architecture: $ARCH"
+    exit 1
+  fi
+
+  curl -Lo kind https://kind.sigs.k8s.io/dl/v0.29.0/${KIND_BINARY}
+  chmod +x kind
+  sudo mv kind /usr/local/bin/kind
+
+  echo "✅ Kind installed successfully"
+else
+  echo "✅ Kind already installed"
+fi
+
+# ----------------------------
+# Install kubectl
+# ----------------------------
+if ! command -v kubectl &>/dev/null; then
+  echo "📦 Installing kubectl..."
+
+  ARCH=$(uname -m)
+  VERSION=$(curl -Ls https://dl.k8s.io/release/stable.txt)
+
+  if [ "$ARCH" = "x86_64" ]; then
+    KUBECTL_ARCH="amd64"
+  elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+    KUBECTL_ARCH="arm64"
+  else
+    echo "❌ Unsupported architecture: $ARCH"
+    exit 1
+  fi
+
+  curl -Lo kubectl https://dl.k8s.io/release/${VERSION}/bin/linux/${KUBECTL_ARCH}/kubectl
+  chmod +x kubectl
+  sudo mv kubectl /usr/local/bin/kubectl
+
+  echo "✅ kubectl installed successfully"
+else
+  echo "✅ kubectl already installed"
+fi
+
+# ----------------------------
+# Verify Installation
+# ----------------------------
+echo
+echo "🔍 Installed Versions:"
+kind --version
+kubectl version --client
+
+echo "🎉 Kind and kubectl installation completed!"
