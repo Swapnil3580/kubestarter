@@ -55,3 +55,5 @@ sudo usermod -aG docker $USER
 
 echo "✅ Docker installed successfully!"
 echo "⚠️ Logout and login again OR run: newgrp docker"
+sudo usermod -aG docker $USER && newgrp docker
+
