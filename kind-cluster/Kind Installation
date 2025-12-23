@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+
+echo "🚀 Installing kind & kubectl on Linux..."
+
+# -----------------------------
+# Variables
+# -----------------------------
+KIND_VERSION="v0.20.0"
+K8S_VERSION="v1.30.0"
+INSTALL_DIR="/usr/local/bin"
+ARCH=$(uname -m)
+
+# -----------------------------
+# Architecture check
+# -----------------------------
+if [ "$ARCH" != "x86_64" ]; then
+  echo "❌ Unsupported architecture: $ARCH"
+  echo "This script supports only AMD64 / x86_64"
+  exit 1
+fi
+
+# -----------------------------
+# Install curl if missing
+# -----------------------------
+if ! command -v curl >/dev/null 2>&1; then
+  echo "📦 Installing curl..."
+  sudo apt update
+  sudo apt install -y curl
+fi
+
+# -----------------------------
+# Install kind
+# -----------------------------
+echo "⬇️ Downloading kind $KIND_VERSION..."
+curl -Lo kind https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64
+
+chmod +x kind
+sudo mv kind ${INSTALL_DIR}/kind
+
+# -----------------------------
+# Install kubectl
+# -----------------------------
+echo "⬇️ Downloading kubectl $K8S_VERSION..."
+curl -Lo kubectl https://dl.k8s.io/release/${K8S_VERSION}/bin/linux/amd64/kubectl
+
+chmod +x kubectl
+sudo mv kubectl ${INSTALL_DIR}/kubectl
+
+# -----------------------------
+# Verify installation
+# -----------------------------
+echo "✅ Verifying installations..."
+kind version
+kubectl version --client
+
+echo "🎉 kind & kubectl installation completed successfully!"
