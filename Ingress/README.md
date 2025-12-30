@@ -117,6 +117,10 @@ kubectl apply -f nginx-deployment.yaml
 minikube addons enable ingress
 ```
 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+
+kubectl get pods -n ingress-nginx
+
 #
 <b>8) Now create an Ingress resource that routes traffic to the Apache and NGINX services based on the URL path.</b>
 ```bash
@@ -153,6 +157,12 @@ spec:
 ```bash
 kubectl apply -f ingress.yaml
 ```
+
+kubectl get ns
+
+kubectl get service -n ingress-nginx
+
+sudo -E kubectl port-forward service/ingress-nginx-controller -n ingress-nginx 8080:80 --address=0.0.0.0 &
 
 #
 <b>10) To test the Ingress, map the hostname to the Minikube IP in your */etc/hosts* file :</b>
